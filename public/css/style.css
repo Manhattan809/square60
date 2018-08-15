@@ -1,0 +1,15 @@
+.error {
+    font-size: 14px;
+    color: #e83e8c;
+
+}
+
+.error.empty-search {
+    border-bottom: 1px dashed #e83e8c;
+    margin: 0 10px;
+    line-height: 34px;
+}
+
+.danger {
+    color: red;
+}
