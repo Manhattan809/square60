@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMembershipsTable extends Migration
+class CreateOfferDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,10 @@ class CreateMembershipsTable extends Migration
      */
     public function up()
     {
-        Schema::create('memberships', function (Blueprint $table) {
+        Schema::create('offer_details', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->integer('offer_id');
-            $table->string('payment_id');
-            $table->enum('type', ['stripe', 'paypal'])->default('stripe');
-            $table->decimal('amount', 9, 2);
-            $table->date('date_start');
-            $table->date('date_end');
+            $table->integer('offer_id')->unsigned();
+            $table->text('detail');
             $table->boolean('status')->default(1);
             $table->timestamps();
         });
@@ -34,6 +29,6 @@ class CreateMembershipsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('memberships');
+        Schema::dropIfExists('offer_details');
     }
 }

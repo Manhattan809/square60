@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 use App\Membership;
+use App\Offer;
 
 class DashboardController extends Controller
 {
@@ -23,13 +24,19 @@ class DashboardController extends Controller
     	if (count($memberships)) $membership = $memberships[0]; else $membership = null;
 
         $users = User::all();
-        $silver = Membership::where('membership', 'silver')
+
+        $silver = Offer::where('membership', 'silver')->first();
+        $gold = Offer::where('membership', 'gold')->first();
+        $diamond = Offer::where('membership', 'diamond')->first();
+
+
+        $silvers = Membership::where('offer_id', $silver->id)
                             ->where('status', 1)
                             ->get();
-        $gold = Membership::where('membership', 'gold')
+        $golds = Membership::where('offer_id', $gold->id)
                             ->where('status', 1)
                             ->get();
-        $diamond = Membership::where('membership', 'diamond')
+        $diamonds = Membership::where('offer_id', $diamond->id)
                             ->where('status', 1)
                             ->get();
 
@@ -39,6 +46,9 @@ class DashboardController extends Controller
             'silver' => $silver,
             'gold' => $gold,
             'diamond' => $diamond,
+            'silvers' => $silvers,
+            'golds' => $golds,
+            'diamonds' => $diamonds,
         ];
 
         return view('dashboard/index', $data);

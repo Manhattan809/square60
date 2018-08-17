@@ -29,12 +29,24 @@
                 </div>
                 <?php Session::forget('success');?>
             @endif
-
             @if ($message = Session::get('error'))
                 <div class="notification is-danger">
                     <strong>Error!</strong> {!! $message !!}.
                 </div>
                 <?php Session::forget('error');?>
+            @endif
+
+            @if ((Session::has('success-message')))
+                <div class="notification is-success">
+                    {{ Session::get('success-message') }}
+                </div>
+                <?php Session::forget('success-message');?>
+            @endif
+            @if ((Session::has('fail-message')))
+                <div class="notification is-danger">
+                    {{ Session::get('fail-message') }}
+                </div>
+                <?php Session::forget('fail-message');?>
             @endif
 
             <h2 class="is-center is-4 title" style="margin-top:15px;">Property Search:</h2>

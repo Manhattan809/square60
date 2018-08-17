@@ -29,15 +29,18 @@
                 <div class="navbar-start"></div>
                 <div class="navbar-end">
                     <a class="navbar-item" href="{{ url('/') }}">Home</a>
-                    <a class="navbar-item" href="{{ url('membership') }}">Membership</a>
                     @guest
+                        <a class="navbar-item" href="{{ url('membership') }}">Membership</a>
                         <a class="navbar-item" href="{{ url('login') }}">Sign in</a>
                         <div class="navbar-item">/</div>
                         <a class="navbar-item" href="{{ url('register') }}">Sign up</a>
                         <a class="navbar-item" href="{{ url('register') }}">Submit listing</a>
                     @else
+                        @if (Auth::user()->rol === 'customer')
+                            <a class="navbar-item" href="{{ url('membership') }}">Membership</a>
+                        @endif
                         <div class="navbar-item has-dropdown is-hoverable">
-                            <a class="navbar-link" href="/documentation/overview/start/">
+                            <a class="navbar-link" href="{{ url('dashboard') }}">
                                 {{ Auth::user()->name }}
                             </a>
                             <div class="navbar-dropdown is-boxed">

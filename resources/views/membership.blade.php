@@ -12,6 +12,16 @@
 		.container {
 			padding-top: 25px;
 		}
+        .dropdown-content {
+            padding: 0;
+            padding-bottom: 10px;
+            margin: 0;
+        }
+        a.dropdown-item {
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
 	</style>
 @endsection
 
@@ -25,206 +35,268 @@
                 <div class="pricing-grids">
                     <div class="pricing-grid1">
                         <div class="price-value">
-                            <h2><a href="#"> SILVER</a></h2>
-                            <h5><span>$ 10.00</span><lable> / month</lable></h5>
+                            <h2><a href="#"> {{ strtoupper($silver->membership) }}</a></h2>
+                            <h5>{!! $silver->detail !!}</h5>
                             <div class="sale-box">
                                 <span class="on_sale title_shop">BASIC</span>
                             </div>
                         </div>
                         <div class="price-bg">
                             <ul>
-                                <li class="whyt">
-                                    <a href="#">
-                                        <strong>Property info</strong> <br>
-                                        <small>$</small>200.00<small> / month</small>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Owner info
-                                    </a>
-                                </li>
-                                <li class="whyt">
-                                    <a href="#">
-                                        <i class="fas fa-minus"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fas fa-minus"></i>
-                                    </a>
-                                </li>
-                                <li class="whyt">
-                                    <a href="#">
-                                        <i class="fas fa-minus"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Owner's mailing list <br>
-                                        <small>$</small>500.00<small> / month</small>
-                                    </a>
-                                </li>
+                                <?php $i = 0; ?>
+                                @foreach($silver->details as $detail)
+                                    <li class="{{ (++$i % 2 == 0 ? '' : 'whyt') }}">
+                                        <a href="#">
+                                            {!! $detail->status ? $detail->detail : '<i class="fas fa-minus"></i>' !!}
+                                        </a>
+                                    </li>
+                                @endforeach
                             </ul>
                             <div class="cart1">
-                                <form method="GET" action="{{ url('payment/paypal') }}">
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="membership" value="silver">
-                                    <input type="hidden" name="amount" value="710">
-                                    @if (empty($membership))
-                                        <button class="button is-warning popup-with-zoom-anim">
-                                            Buy Monthly
+                                @if (empty($membership))
+                                    <div class="dropdown">
+                                        <div class="dropdown-trigger">
+                                            <button class="button is-warning popup-with-zoom-anim" aria-haspopup="true" aria-controls="dropdown-menu">
+                                                <span>Buy Monthly</span>
+                                                <span class="icon is-small">
+                                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                            <div class="dropdown-content">
+                                                <form action="{{ url('payment/stripe') }}" method="POST">
+                                                    {{ csrf_field() }}
+                                                    <input type="hidden" name="offer_id" value="{{ $silver->id }}">
+                                                    <script
+                                                        src="https://checkout.stripe.com/checkout.js"
+                                                        class="stripe-button"
+                                                        data-key="pk_test_nrMwlkQhpxF3mOvt9JfICZXD"
+                                                        data-amount="{{ str_replace('.', '', $silver->amount) }}"
+                                                        data-name="{{ $silver->membership }}"
+                                                        data-description="{{ $silver->membership }}"
+                                                        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                                                        data-locale="auto">
+                                                    </script>
+                                                </form>
+                                                <hr class="dropdown-divider">
+                                                <a href="{{ url('payment/paypal/'.$silver->id) }}" class="dropdown-item">
+                                                    <i class="fab fa-paypal fa-5x"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else 
+                                    @if ($membership->offer->membership === $silver->membership)
+                                        <button class="button" disabled>
+                                            Current Plan
                                         </button>
-                                    @else 
-                                        @if ($membership->membership === 'silver')
-                                            <button class="button" disabled>
-                                                Current Plan
-                                            </button>
-                                        @else
-                                            <button class="button" disabled="">
-                                                Disabled
-                                            </button>
-                                        @endif
+                                    @else
+                                        <button class="button" disabled="">
+                                            Disabled
+                                        </button>
                                     @endif
-                                </form>
+                                @endif
                             </div>
                         </div>
                     </div>
                     <div class="pricing-grid2">
                         <div class="price-value two">
-                            <h3><a href="#">GOLD</a></h3>
-                            <h5><span>$ 25.00</span><lable> / month</lable></h5>
+                            <h2><a href="#"> {{ strtoupper($gold->membership) }}</a></h2>
+                            <h5>{!! $gold->detail !!}</h5>
                             <div class="sale-box two">
                                 <span class="on_sale title_shop">STANDARD</span>
                             </div>
                         </div>
                         <div class="price-bg">
                             <ul>
-                                <li class="whyt">
-                                    <a href="#">
-                                        <strong>Property info</strong> <br>
-                                        <small>$</small>250.00<small> / month</small>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Owner info
-                                    </a>
-                                </li>
-                                <li class="whyt">
-                                    <a href="#">
-                                        Map
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Comparible
-                                    </a>
-                                </li>
-                                <li class="whyt">
-                                    <a href="#">
-                                        <i class="fas fa-minus"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Owner's mailing list <br>
-                                        <small>$</small>1,000.00<small> / month</small>
-                                    </a>
-                                </li>
+                                <?php $i = 0; ?>
+                                @foreach($gold->details as $detail)
+                                    <li class="{{ (++$i % 2 == 0 ? '' : 'whyt') }}">
+                                        <a href="#">
+                                            {!! $detail->status ? $detail->detail : '<i class="fas fa-minus"></i>' !!}
+                                        </a>
+                                    </li>
+                                @endforeach
                             </ul>
                             <div class="cart2">
-                                <form method="GET" action="{{ url('payment/paypal') }}">
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="membership" value="gold">
-                                    <input type="hidden" name="amount" value="1275">
-                                    @if (empty($membership))
-                                        <button class="button is-danger popup-with-zoom-anim">
-                                            Buy Monthly
+                                @if (empty($membership))
+                                    <div class="dropdown">
+                                        <div class="dropdown-trigger">
+                                            <button class="button is-danger popup-with-zoom-anim" aria-haspopup="true" aria-controls="dropdown-menu">
+                                                <span>Buy Monthly</span>
+                                                <span class="icon is-small">
+                                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                            <div class="dropdown-content">
+                                                <form action="{{ url('payment/stripe') }}" method="POST">
+                                                    {{ csrf_field() }}
+                                                    <input type="hidden" name="offer_id" value="{{ $gold->id }}">
+                                                    <script
+                                                        src="https://checkout.stripe.com/checkout.js"
+                                                        class="stripe-button"
+                                                        data-key="pk_test_nrMwlkQhpxF3mOvt9JfICZXD"
+                                                        data-amount="{{ str_replace('.', '', $gold->amount) }}"
+                                                        data-name="{{ $gold->membership }}"
+                                                        data-description="{{ $gold->membership }}"
+                                                        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                                                        data-locale="auto">
+                                                    </script>
+                                                </form>
+                                                <hr class="dropdown-divider">
+                                                <a href="{{ url('payment/paypal/'.$gold->id) }}" class="dropdown-item">
+                                                    <i class="fab fa-paypal fa-5x"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else 
+                                    @if ($membership->offer->membership === $gold->membership)
+                                        <button class="button" disabled>
+                                            Current Plan
                                         </button>
-                                    @else 
-                                        @if ($membership->membership === 'gold')
-                                            <button class="button" disabled="">
-                                                Current Plan
-                                            </button>
-                                        @elseif ($membership->membership === 'silver')
-                                            <button class="button is-danger popup-with-zoom-anim">
-                                                Upgrade
-                                            </button>
-                                        @else
-                                            <button class="button" disabled="">
-                                                Disabled
-                                            </button>
-                                        @endif
+                                    @elseif ($membership->offer->membership === 'silver')
+                                        <div class="dropdown">
+                                            <div class="dropdown-trigger">
+                                                <button class="button is-danger popup-with-zoom-anim" aria-haspopup="true" aria-controls="dropdown-menu">
+                                                    <span>Upgrade</span>
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                                <div class="dropdown-content">
+                                                    <form action="{{ url('payment/stripe') }}" method="POST">
+                                                        {{ csrf_field() }}
+                                                        <input type="hidden" name="offer_id" value="{{ $gold->id }}">
+                                                        <script
+                                                            src="https://checkout.stripe.com/checkout.js"
+                                                            class="stripe-button"
+                                                            data-key="pk_test_nrMwlkQhpxF3mOvt9JfICZXD"
+                                                            data-amount="{{ str_replace('.', '', $gold->amount) }}"
+                                                            data-name="{{ $gold->membership }}"
+                                                            data-description="{{ $gold->membership }}"
+                                                            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                                                            data-locale="auto">
+                                                        </script>
+                                                    </form>
+                                                    <hr class="dropdown-divider">
+                                                    <a href="{{ url('payment/paypal/'.$gold->id) }}" class="dropdown-item">
+                                                        <i class="fab fa-paypal fa-5x"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <button class="button" disabled="">
+                                            Disabled
+                                        </button>
                                     @endif
-                                </form>
+                                @endif
                             </div>
                         </div>
                     </div>
                     <div class="pricing-grid3">
                         <div class="price-value three">
-                            <h4><a href="#">DIAMOND</a></h4>
-                            <h5><span>$ 45.00</span><lable> / month</lable></h5>
+                            <h2><a href="#"> {{ strtoupper($diamond->membership) }}</a></h2>
+                            <h5>{!! $diamond->detail !!}</h5>
                             <div class="sale-box three">
                                 <span class="on_sale title_shop">PREMIUM</span>
                             </div>
                         </div>
                         <div class="price-bg">
                             <ul>
-                                <li class="whyt">
-                                    <a href="#">
-                                        <strong>Property info</strong> <br>
-                                        <small>$</small>300.00<small> / month</small>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Owner info
-                                    </a>
-                                </li>
-                                <li class="whyt">
-                                    <a href="#">
-                                        Map
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Comparible
-                                    </a>
-                                </li>
-                                <li class="whyt">
-                                    <a href="#">
-                                        Pre-florclosure
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        Owner's mailing list <br>
-                                        <small>$</small>2,500.00<small> / month</small>
-                                    </a>
-                                </li>
+                                <?php $i = 0; ?>
+                                @foreach($diamond->details as $detail)
+                                    <li class="{{ (++$i % 2 == 0 ? '' : 'whyt') }}">
+                                        <a href="#">
+                                            {!! $detail->status ? $detail->detail : '<i class="fas fa-minus"></i>' !!}
+                                        </a>
+                                    </li>
+                                @endforeach
                             </ul>
                             <div class="cart3">
-                                <form method="GET" action="{{ url('payment/paypal') }}">
-                                    {{ csrf_field() }}
-                                    <input type="hidden" name="membership" value="diamond">
-                                    <input type="hidden" name="amount" value="2845">
-                                    @if (empty($membership))
-                                        <button class="button is-primary popup-with-zoom-anim">
-                                            Buy Monthly
+                                @if (empty($membership))
+                                    <div class="dropdown">
+                                        <div class="dropdown-trigger">
+                                            <button class="button is-primary popup-with-zoom-anim" aria-haspopup="true" aria-controls="dropdown-menu">
+                                                <span>Buy Monthly</span>
+                                                <span class="icon is-small">
+                                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                            <div class="dropdown-content">
+                                                <form action="{{ url('payment/stripe') }}" method="POST">
+                                                    {{ csrf_field() }}
+                                                    <input type="hidden" name="offer_id" value="{{ $diamond->id }}">
+                                                    <script
+                                                        src="https://checkout.stripe.com/checkout.js"
+                                                        class="stripe-button"
+                                                        data-key="pk_test_nrMwlkQhpxF3mOvt9JfICZXD"
+                                                        data-amount="{{ str_replace('.', '', $diamond->amount) }}"
+                                                        data-name="{{ $diamond->membership }}"
+                                                        data-description="{{ $diamond->membership }}"
+                                                        data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                                                        data-locale="auto">
+                                                    </script>
+                                                </form>
+                                                <hr class="dropdown-divider">
+                                                <a href="{{ url('payment/paypal/'.$diamond->id) }}" class="dropdown-item">
+                                                    <i class="fab fa-paypal fa-5x"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else 
+                                    @if ($membership->offer->membership === $diamond->membership)
+                                        <button class="button" disabled>
+                                            Current Plan
+                                        </button> 
+                                    @elseif ($membership->offer->membership !== 'diamond')
+                                        <div class="dropdown">
+                                            <div class="dropdown-trigger">
+                                                <button class="button is-primary popup-with-zoom-anim" aria-haspopup="true" aria-controls="dropdown-menu">
+                                                    <span>Upgrade</span>
+                                                    <span class="icon is-small">
+                                                        <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                                                <div class="dropdown-content">
+                                                    <form action="{{ url('payment/stripe') }}" method="POST">
+                                                        {{ csrf_field() }}
+                                                        <input type="hidden" name="offer_id" value="{{ $diamond->id }}">
+                                                        <script
+                                                            src="https://checkout.stripe.com/checkout.js"
+                                                            class="stripe-button"
+                                                            data-key="pk_test_nrMwlkQhpxF3mOvt9JfICZXD"
+                                                            data-amount="{{ str_replace('.', '', $diamond->amount) }}"
+                                                            data-name="{{ $diamond->membership }}"
+                                                            data-description="{{ $diamond->membership }}"
+                                                            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                                                            data-locale="auto">
+                                                        </script>
+                                                    </form>
+                                                    <hr class="dropdown-divider">
+                                                    <a href="{{ url('payment/paypal/'.$diamond->id) }}" class="dropdown-item">
+                                                        <i class="fab fa-paypal fa-5x"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <button class="button" disabled="">
+                                            Disabled
                                         </button>
-                                    @else 
-                                        @if ($membership->membership === 'diamond')
-                                            <button class="button" disabled="">
-                                                Current Plan
-                                            </button>
-                                        @elseif ($membership->membership === 'silver' || $membership->membership === 'gold')
-                                            <button class="button is-primary popup-with-zoom-anim">
-                                                Upgrade
-                                            </button>
-                                        @endif
                                     @endif
-                                </form>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -233,8 +305,11 @@
             <div class="clear"> </div>
         </div>
 	</div>
-	<br>
-	<br>
-	<br>
-	<br>
+
+    <br><br><br><br><br><br><br><br>
+@endsection
+
+@section('js')
+    <script src="https://bulma.io/vendor/js.cookie-2.1.4.min.js"></script>
+    <script src="https://bulma.io/lib/main.js?v=201808020834"></script>
 @endsection

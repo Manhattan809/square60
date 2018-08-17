@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
 use App\Membership;
+use App\Offer;
 
 class MembershipController extends Controller
 {
@@ -25,7 +26,16 @@ class MembershipController extends Controller
         }
         else $membership = null;
 
-        return view('membership', ['membership' => $membership]);
+        $silver = Offer::where('membership', 'silver')->first();
+        $gold = Offer::where('membership', 'gold')->first();
+        $diamond = Offer::where('membership', 'diamond')->first();
+
+        return view('membership', [
+            'membership' => $membership,
+            'silver' => $silver,
+            'gold' => $gold,
+            'diamond' => $diamond
+        ]);
     }
 
     /**

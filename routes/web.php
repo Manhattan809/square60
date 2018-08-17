@@ -34,8 +34,9 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::post('profile', 'ProfileController@update')->name('profile');
 
 	// route for processing payment
-	Route::get('payment/paypal', 'PaymentController@payWithpaypal');
+	Route::get('payment/paypal/{offer_id}', 'PaymentController@payWithpaypal');
 
 	// route for check status of the payment
 	Route::get('status', 'PaymentController@getPaymentStatus')->name('status');
+	Route::post('payment/stripe', 'PaymentController@payWithstripe')->name('stripe');
 });

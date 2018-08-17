@@ -31,16 +31,16 @@
 	        				<td>
 	        					@foreach($row->memberships as $m)
                                     @if ($m->status === 1)
-                                        {{ $m->membership }}
+                                        {{ $m->offer->membership }}
                                     @endif
 	        					@endforeach
 	        				</td>
 	        				<td>
-	        					@foreach($row->memberships as $m)
+                                @foreach($row->memberships as $m)
                                     @if ($m->status === 1)
-                                        {{ $m->date_end }}
+                                        {{ $m->offer->date_end }}
                                     @endif
-	        					@endforeach
+                                @endforeach
 	        				</td>
 	        			</tr>
         			@endforeach

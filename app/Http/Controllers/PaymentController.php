@@ -23,6 +23,8 @@ use Redirect;
 use Session;
 use URL;
 use App\Membership;
+use App\Offer;
+use App\User;
 
 class PaymentController extends Controller
 {
@@ -44,27 +46,29 @@ class PaymentController extends Controller
         $this->_api_context->setConfig($paypal_conf['settings']);
 	}
 
-	public function payWithpaypal(Request $request)
+	public function payWithpaypal($offer_id)
     {
-		Session::put('membership', $request->get('membership'));
-		Session::put('membership_amount', $request->get('amount'));
+    	$offer = Offer::where('id', $offer_id)->first();
+
+		Session::put('offer_id', $offer_id);
+		Session::put('membership_amount', $offer->amount);
 
 		$payer = new Payer();
 		$payer->setPaymentMethod('paypal');
 		$item_1 = new Item();
-		$item_1->setName('Item 1') /** item name **/
+		$item_1->setName($offer->membership) /** item name **/
 		            ->setCurrency('USD')
 		            ->setQuantity(1)
-		            ->setPrice($request->get('amount')); /** unit price **/
+		            ->setPrice($offer->amount); /** unit price **/
 		$item_list = new ItemList();
 		$item_list->setItems(array($item_1));
 		$amount = new Amount();
 		$amount->setCurrency('USD')
-				->setTotal($request->get('amount'));
+				->setTotal($offer->amount);
 		$transaction = new Transaction();
 		$transaction->setAmount($amount)
 		            ->setItemList($item_list)
-		            ->setDescription('Your transaction description');
+		            ->setDescription($offer->membership);
 		$redirect_urls = new RedirectUrls();
 		$redirect_urls->setReturnUrl(URL::route('status')) /** Specify return URL **/
 						->setCancelUrl(URL::route('status'));
@@ -105,15 +109,15 @@ class PaymentController extends Controller
     {
         /** Get the payment ID before session clear **/
         $payment_id = Session::get('paypal_payment_id');
-        $membership = Session::get('membership');
+        $offer_id = Session::get('offer_id');
         $amount = Session::get('membership_amount');
 		/** clear the session payment ID **/
 		Session::forget('paypal_payment_id');
-		Session::forget('membership');
+		Session::forget('offer_id');
 		Session::forget('membership_amount');
 		if (empty(Input::get('PayerID')) || empty(Input::get('token'))) {
 			\Session::put('error', 'Payment failed');
-			return Redirect::route('/');
+			return Redirect::route('home');
 		}
 		$payment = Payment::get($payment_id, $this->_api_context);
 		$execution = new PaymentExecution();
@@ -135,7 +139,7 @@ class PaymentController extends Controller
 			$mem = new Membership;
 	        $mem->user_id = Auth::id();
 	        $mem->payment_id = $payment_id;
-	        $mem->membership = $membership;
+	        $mem->offer_id = $offer_id;
 	        $mem->amount = $amount;
 	        $mem->date_start = $start;
 	        $mem->date_end = $end;
@@ -145,6 +149,53 @@ class PaymentController extends Controller
 			return Redirect::route('home');
 		}
 		\Session::put('error', 'Payment failed');
+		return Redirect::route('home');
+	}
+
+	public function payWithstripe(Request $request) 
+	{
+    	$offer = Offer::where('id', $request->get('offer_id'))->first();
+
+        $offer_id = $offer->id;
+        $amount = $offer->amount;
+        $membership = $offer->membership;
+
+		\Session::put('success', 'Payment success');
+
+		// Set your secret key: remember to change this to your live secret key in production
+		// See your keys here: https://dashboard.stripe.com/account/apikeys
+		\Stripe\Stripe::setApiKey("sk_test_gd4NY9yWtbxW9aH7r7dfqklJ");
+
+		// Token is created using Checkout or Elements!
+		// Get the payment token ID submitted by the form:
+		$token = $_POST['stripeToken'];
+		$charge = \Stripe\Charge::create([
+		    'amount' => str_replace('.', '', $amount),
+		    'currency' => 'usd',
+		    'description' => $membership,
+		    'source' => $token,
+		]);
+
+        $payment_id = $token;
+		$start = date_create(date('Y-m-d'));
+		$date = date_create(date('Y-m-d'));
+		date_add($date, date_interval_create_from_date_string('1 month'));
+		$end = date_format($date, 'Y-m-d');
+
+		Membership::where('status', 1)
+		          ->where('user_id', Auth::id())
+		          ->update(['status' => 0]);
+
+		$mem = new Membership;
+        $mem->user_id = Auth::id();
+        $mem->payment_id = $payment_id;
+        $mem->offer_id = $offer_id;
+        $mem->amount = $amount;
+        $mem->date_start = $start;
+        $mem->date_end = $end;
+        $mem->status = true;
+        $mem->save();
+
 		return Redirect::route('home');
 	}
 }
